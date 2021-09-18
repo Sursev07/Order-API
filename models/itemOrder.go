@@ -13,6 +13,8 @@ type Item struct {
 
 type ItemOrder struct {
 	CustomerName string `json:"customer_name"`
+	Quantity int `json:"quantity"`
+	ItemId int `json:"item_id"`
 	Items []Item
 }
 
@@ -20,6 +22,6 @@ type ItemOrder struct {
 type Order struct {
 	ID int `gorm:"default:uuid_generate_v3()"`
 	CustomerName string `json:"customer_name" binding:"required"`
-	OrderedAt time.Time `json:"ordered_at" binding:"required"`
+	OrderedAt time.Time `json:"ordered_at" `
 	Items []Item `gorm:"foreignKey:OrderId"`
 }
