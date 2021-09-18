@@ -6,9 +6,11 @@ import (
 	"Order-API/models"
 	"net/http"
 	"time"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
+
 
 func CreateOrder(c *gin.Context)  {
 	var (
@@ -52,7 +54,7 @@ func CreateOrder(c *gin.Context)  {
 				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 				return
 			}
-			allItem = append(allItem,itemOrder.Items[i])
+			allItem = append(allItem,item)
 		}
 		fmt.Println(">>>> Masuk")
 		result = gin.H {
@@ -67,7 +69,101 @@ func CreateOrder(c *gin.Context)  {
 	c.JSON(http.StatusOK, result)
 }
 
-// func GetOrders(c *gin.Context) {
-	 
+func GetAllOrders(c *gin.Context) {
+	db := database.GetDB()
+	Orders := []models.Order{}
+	err := db.Debug().Preload("Item").Find(&Orders).Error
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"err":     "Bad Request",
+			"message": err.Error(),
+		})
+		return
+	}
+
+	result := []map[string]interface{}{}
+
+	for _, o := range Items {
+		temp := map[string]interface{}{
+			"id":          o.ID,
+			"customer_name":       o.CustomerName,
+			"ordered_at":       o.OrderedAt,
+			"Items": map[string]interface{}{}
+		}
+
+		if t.User != nil {
+			temp["Items"] = map[string]interface{}{
+				"id":        t.User.ID,
+				"full_name": t.User.FullName,
+				"email":     t.User.Email,
+			}
+		}
+		result = append(result, temp)
+	}
+
+	c.JSON(http.StatusOK, result)
+}
+
+func DeleteOrder(c *gin.Context) {
+	db := database.GetDB()
+	Item := models.Item{}
+	Order := models.Order{}
+	orderId, _ := strconv.Atoi(c.Param("id"))
+	// fmt.Println(orderId, "OrderId")
+	err := db.First(&Order, uint(orderId)).Error
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"err":     "Not Found",
+			"message": "data Order not found",
+		})
+		return
+	}
+
+	err = db.Where("order_id = ?", orderId).Delete(&Item).Error
+	err = db.Delete(Order, uint(orderId)).Error
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"err":     "Bad Request",
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Order has been successfully deleted",
+	})
+}
+
+// func UpdateOrder(c *gin.Context) {
+// 	db := database.GetDB()
+// 	Item := models.Item{}
+// 	Order := models.Order{}
+// 	orderId, _ := strconv.Atoi(c.Param("id"))
+// 	// fmt.Println(orderId, "OrderId")
+// 	err := db.First(&Order, uint(orderId)).Error
+// 	if err != nil {
+// 		c.JSON(http.StatusNotFound, gin.H{
+// 			"err":     "Not Found",
+// 			"message": "data Order not found",
+// 		})
+// 		return
+// 	}
+
+// 	err = db.Where("order_id = ?", orderId).Delete(&Item).Error
+// 	err = db.Delete(Order, uint(orderId)).Error
+// 	if err != nil {
+// 		c.JSON(http.StatusBadRequest, gin.H{
+// 			"err":     "Bad Request",
+// 			"message": err.Error(),
+// 		})
+// 		return
+// 	}
+
+// 	c.JSON(http.StatusOK, gin.H{
+// 		"message": "Order has been successfully deleted",
+// 	})
 // }
+
+
 

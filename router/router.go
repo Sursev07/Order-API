@@ -13,9 +13,9 @@ func StartApp() *gin.Engine  {
 		c.JSON(http.StatusOK, gin.H{"data": "welcome to Order API by Seven"})    
 	  })
 
-	// router.GET("/orders", controllers.GetOrders)
+	router.GET("/orders", controllers.GetOrders)
 	router.POST("/orders", controllers.CreateOrder)
 	// router.PUT("/orders/:id", controllers.UpdateOrder)
-	// router.DELETE("/orders/:id", controllers.Deleteorder)
+	router.DELETE("/orders/:id", controllers.DeleteOrder)
 	return router
 }
