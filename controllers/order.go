@@ -72,7 +72,7 @@ func CreateOrder(c *gin.Context)  {
 func GetAllOrders(c *gin.Context) {
 	db := database.GetDB()
 	Orders := []models.Order{}
-	err := db.Debug().Preload("Item").Find(&Orders).Error
+	err := db.Debug().Preload("Items").Find(&Orders).Error
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -82,27 +82,14 @@ func GetAllOrders(c *gin.Context) {
 		return
 	}
 
-	result := []map[string]interface{}{}
-
-	for _, o := range Items {
-		temp := map[string]interface{}{
-			"id":          o.ID,
-			"customer_name":       o.CustomerName,
-			"ordered_at":       o.OrderedAt,
-			"Items": map[string]interface{}{}
-		}
-
-		if t.User != nil {
-			temp["Items"] = map[string]interface{}{
-				"id":        t.User.ID,
-				"full_name": t.User.FullName,
-				"email":     t.User.Email,
-			}
-		}
-		result = append(result, temp)
+	// fmt.Printf("%+v\n", Orders)
+	for _, v := range Orders {
+		fmt.Println(v.Items, ">>>")
 	}
-
-	c.JSON(http.StatusOK, result)
+	result := gin.H {
+		"data" : Orders,
+	}
+	 c.JSON(http.StatusOK, result)
 }
 
 func DeleteOrder(c *gin.Context) {

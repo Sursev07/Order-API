@@ -1,7 +1,7 @@
 package models
 
 import (
-	// "time"
+	"time"
 )
 
 type Item struct {
@@ -14,4 +14,12 @@ type Item struct {
 type ItemOrder struct {
 	CustomerName string `json:"customer_name"`
 	Items []Item
+}
+
+
+type Order struct {
+	ID int `gorm:"default:uuid_generate_v3()"`
+	CustomerName string `json:"customer_name" binding:"required"`
+	OrderedAt time.Time `json:"ordered_at" binding:"required"`
+	Items []Item `gorm:"foreignKey:OrderId"`
 }
